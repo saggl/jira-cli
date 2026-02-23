@@ -17,7 +17,12 @@ import (
 	"github.com/ankitpokhrel/jira-cli/pkg/tui"
 )
 
-const defaultSummaryLength = 73 // +1 to take ellipsis '…' into account.
+const (
+	defaultSummaryLength = 73 // +1 to take ellipsis '…' into account.
+	byteInKB             = 1024
+	byteInMB             = byteInKB * 1024
+	byteInGB             = byteInMB * 1024
+)
 
 type fragment struct {
 	Body  string
@@ -109,6 +114,15 @@ func (i Issue) String() string {
 	if len(i.Data.Fields.IssueLinks) > 0 {
 		s.WriteString(fmt.Sprintf("\n\n%s\n\n%s\n", i.separator("Linked Issues"), i.linkedIssues()))
 	}
+	if len(i.Data.Fields.Attachments) > 0 {
+		s.WriteString(
+			fmt.Sprintf(
+				"\n\n%s\n\n%s\n",
+				i.separator(fmt.Sprintf("%d Attachments", len(i.Data.Fields.Attachments))),
+				i.attachments(),
+			),
+		)
+	}
 	total := i.Data.Fields.Comment.Total
 	if total > 0 && i.Options.NumComments > 0 {
 		sep := fmt.Sprintf("%d Comments", total)
@@ -156,6 +170,17 @@ func (i Issue) fragments() []fragment {
 			fragment{Body: i.separator("Linked Issues")},
 			newBlankFragment(2),
 			fragment{Body: i.linkedIssues()},
+			newBlankFragment(1),
+		)
+	}
+
+	if len(i.Data.Fields.Attachments) > 0 {
+		scraps = append(
+			scraps,
+			newBlankFragment(1),
+			fragment{Body: i.separator(fmt.Sprintf("%d Attachments", len(i.Data.Fields.Attachments)))},
+			newBlankFragment(2),
+			fragment{Body: i.attachments()},
 			newBlankFragment(1),
 		)
 	}
@@ -376,6 +401,47 @@ func (i Issue) linkedIssues() string {
 	}
 
 	return linked.String()
+}
+
+func (i Issue) attachments() string {
+	if len(i.Data.Fields.Attachments) == 0 {
+		return ""
+	}
+
+	var attachments strings.Builder
+
+	attachments.WriteString(
+		fmt.Sprintf("\n %s\n\n", coloredOut("ATTACHMENTS", color.FgWhite, color.Bold)),
+	)
+
+	for _, a := range i.Data.Fields.Attachments {
+		size := formatAttachmentSize(a.Size)
+		date := cmdutil.FormatDateTimeHuman(a.Created, jira.RFC3339)
+		attachments.WriteString(
+			fmt.Sprintf(
+				"  📎 %s (%s) - Added by %s on %s\n",
+				coloredOut(a.Filename, color.FgCyan),
+				size,
+				a.Author.DisplayName,
+				date,
+			),
+		)
+	}
+
+	return attachments.String()
+}
+
+func formatAttachmentSize(bytes int64) string {
+	switch {
+	case bytes >= byteInGB:
+		return fmt.Sprintf("%.2f GB", float64(bytes)/float64(byteInGB))
+	case bytes >= byteInMB:
+		return fmt.Sprintf("%.2f MB", float64(bytes)/float64(byteInMB))
+	case bytes >= byteInKB:
+		return fmt.Sprintf("%.2f KB", float64(bytes)/float64(byteInKB))
+	default:
+		return fmt.Sprintf("%d B", bytes)
+	}
 }
 
 func (i Issue) comments() []issueComment {

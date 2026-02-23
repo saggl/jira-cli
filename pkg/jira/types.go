@@ -111,7 +111,8 @@ type IssueFields struct {
 		} `json:"comments"`
 		Total int `json:"total"`
 	} `json:"comment"`
-	Subtasks   []Issue
+	Attachments []Attachment `json:"attachment"`
+	Subtasks    []Issue
 	IssueLinks []struct {
 		ID       string `json:"id"`
 		LinkType struct {
@@ -190,4 +191,15 @@ type User struct {
 	Name        string `json:"name,omitempty"`
 	DisplayName string `json:"displayName"`
 	Active      bool   `json:"active"`
+}
+
+// Attachment holds attachment metadata.
+type Attachment struct {
+	ID       string `json:"id"`
+	Filename string `json:"filename"`
+	Author   User   `json:"author"`
+	Created  string `json:"created"`
+	Size     int64  `json:"size"`
+	MimeType string `json:"mimeType"`
+	Content  string `json:"content"` // URL to download the attachment
 }

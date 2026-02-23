@@ -228,3 +228,27 @@ func ProxyWatchIssue(c *jira.Client, key string, user *jira.User) error {
 	}
 	return c.WatchIssue(key, assignee)
 }
+
+// ProxyUploadAttachment uses either a v2 or v3 version of the POST /issue/{key}/attachments
+// endpoint to upload an attachment to an issue.
+// Defaults to v3 if installation type is not defined in the config.
+func ProxyUploadAttachment(c *jira.Client, key, filePath string) ([]jira.Attachment, error) {
+	it := viper.GetString("installation")
+
+	if it == jira.InstallationTypeLocal {
+		return c.UploadAttachmentV2(key, filePath)
+	}
+	return c.UploadAttachment(key, filePath)
+}
+
+// ProxyDeleteAttachment uses either a v2 or v3 version of the DELETE /attachment/{id}
+// endpoint to delete an attachment.
+// Defaults to v3 if installation type is not defined in the config.
+func ProxyDeleteAttachment(c *jira.Client, attachmentID string) error {
+	it := viper.GetString("installation")
+
+	if it == jira.InstallationTypeLocal {
+		return c.DeleteAttachmentV2(attachmentID)
+	}
+	return c.DeleteAttachment(attachmentID)
+}

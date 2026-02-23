@@ -95,6 +95,32 @@ func TestGetIssue(t *testing.T) {
 					OutwardIssue: &Issue{},
 				},
 			},
+			Attachments: []Attachment{
+				{
+					ID:       "10001",
+					Filename: "test-document.pdf",
+					Author: User{
+						DisplayName: "Person A",
+						AccountID:   "123",
+					},
+					Created:  "2020-12-01T10:00:00.000+0100",
+					Size:     1048576,
+					MimeType: "application/pdf",
+					Content:  "https://example.com/attachment/10001",
+				},
+				{
+					ID:       "10002",
+					Filename: "screenshot.png",
+					Author: User{
+						DisplayName: "Person B",
+						AccountID:   "456",
+					},
+					Created:  "2020-12-02T15:30:00.000+0100",
+					Size:     524288,
+					MimeType: "image/png",
+					Content:  "https://example.com/attachment/10002",
+				},
+			},
 		},
 	}
 	assert.Equal(t, expected, actual)

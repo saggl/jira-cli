@@ -539,6 +539,65 @@ comment body template
 EOF
 ```
 
+#### Attachment
+The `attachment` command provides a list of sub-commands to manage issue attachments.
+
+##### List
+List all attachments for an issue.
+
+```sh
+# List attachments for an issue
+$ jira issue attachment list ISSUE-1
+
+# List in CSV format
+$ jira issue attachment list ISSUE-1 --csv
+
+# List in plain text format
+$ jira issue attachment list ISSUE-1 --plain
+```
+
+##### Download
+Download attachments from an issue.
+
+```sh
+# Download all attachments from an issue
+$ jira issue attachment download ISSUE-1 --all
+
+# Download a specific file by filename
+$ jira issue attachment download ISSUE-1 document.pdf
+
+# Download a specific attachment by ID
+$ jira issue attachment download ISSUE-1 --id 12345
+
+# Download to a specific directory
+$ jira issue attachment download ISSUE-1 --all --output /path/to/dir
+```
+
+##### Add
+Upload files as attachments to an issue.
+
+```sh
+# Upload a single file
+$ jira issue attachment add ISSUE-1 file.pdf
+
+# Upload multiple files
+$ jira issue attachment add ISSUE-1 file1.pdf file2.png file3.txt
+
+# Skip confirmation prompt
+$ jira issue attachment add ISSUE-1 file.pdf --no-input
+```
+
+##### Remove
+Delete an attachment from an issue.
+
+```sh
+# Remove an attachment by ID
+$ jira issue attachment remove ISSUE-1 12345
+
+# Skip confirmation prompt
+$ jira issue attachment remove ISSUE-1 12345 --no-input
+```
+
 #### Worklog
 The `worklog` command provides a list of sub-commands to manage issue worklog (timelog).
 
